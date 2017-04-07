@@ -65,4 +65,56 @@ We recomment `ava` with the configuration illustrated in this starter project to
 
 ## Data output
 
-coming soon
+All providers must return either a feed or an entry according to the following format : 
+```javascript
+const feed = {
+  title: '', // title of the feed
+  author: { name: 'author name' },
+  id: '', // 'id of the feed'
+  summary: '', // description of the feed
+  link: {
+    type: 'atom',
+    rel: 'self',
+    href: '', // url to get the feed
+  },
+  type: {
+    value: '' // either feed, or the entry type
+  },
+  mediaGroup: [{
+    type: '', // type of media asset : thumbnail...
+    media_item: {
+      scale: 'small|large',
+      src: '', // url of the media asset
+    }
+  }] // mediaGroup can contain any number of assets
+  updated: '' // ISO 8601 timestamp of the latest feed update*,
+  entry: [] // array of feed entries
+  extensions: {}, // all other data you want to pass
+};
+
+const entry = {
+  id: '',
+  title: '',
+  summary: '',
+  author: { name: '' },
+  type: { value: 'feed|video|article|channel|gallery' },
+  link: {
+    type: 'atom',
+    rel: 'self',
+    href: '', // url to get the entry
+  },
+  ui_tag: '', // may be required in some cases
+  screen_type: '', // may be required in some cases
+  mediaGroup: [{}], // same as above,
+  updated: '',
+  extensions: {},
+}
+```
+
+* https://en.wikipedia.org/wiki/ISO_8601#Combined_date_and_time_representations
+
+## npm commands
+
+The starter kit is pre-configured to pull the `zapp-pipes-dev-kit` and expose a node server to test the provider in the browser. just run `npm start` to kick off the server, and point your browser to `http://localhost:8080/{provider-name}/fetchData?type={request_type}&params=...`
+
+There are also `pretest` and `prepublish` hooks prepared for testing and releasing the bundle. The `pretest` hook should not be removed, as the `zapp-pipes packager` will need to pull all dependencies - including test dependencies in order to run the provider's test suite.

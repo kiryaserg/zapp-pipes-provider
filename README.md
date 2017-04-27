@@ -12,8 +12,16 @@ The final export of the provider npm package must be an object with the followin
 * **name<String>**: name of the provider. this string will be used as the scheme for making requests inside the app, and should only contain UTF-8 compatible alphabetical characters and dashes `-`
 * **manifest**: the manifest is an object containing the following properties :
   * **handlers<[String]>**: strings of `request_type` handled by the provider. All request must contain a `type` parameter which matches one of the handlers declared here. If a request is made to an unregistered `request_type`, the zapp-pipes bundle will throw an error.
-  * **help**: the help object is supposed to provide help for all supported `request_type`. Ideally, should provide a description object, and a parameters array which declares all the other parameters required for performing the relevant `request_type`
-* **handler: (providerUtils) -> (params) -> providerResult<Promise:Any>** : the handler method should be a curried function which returns the result of the request. The currying enables the core library to inject the parameters and the utility functions the provider may require. 
+  * **help&lt;Object&gt;**: the help object is supposed to provide help for all supported `request_type`. Ideally, should provide a description object, and a parameters array which declares all the other parameters required for performing the relevant `request_type`
+* **handler: (providerUtils) -> (params) -> providerResult&lt;Promise:Any&gt;** : the handler method should be a curried function which returns the result of the request. The currying enables the core library to inject the parameters and the utility functions the provider may require. 
+* **test&lt;Object&gt;**: The test object provides the info required by the packager to run integration tests while building the bundle
+  * **testCommand<String>**: the test command that will be used in the integration test. should be something like `{provider-name}://fetchData?type={requestType}&foo=bar`
+  * **requestMocks&lt;[Object]&gt;**: the zapp-pipes packager uses [nock](https://github.com/node-nock/nock) to mock server request during the integration test process. The `requestMocks` object allows to register urls and responses that need to be mocked during the integration test. For each mocked request, you should provide an object with the following properties:
+    * **host&lt;String&gt;** : the full host name, with the protocol used
+    * **method<get|post>** : the http method to use. If using `post`, the nock setup will automatically intercept requests, regardless of the payload sent in the request body
+    * **path&lt;String&gt;** : the path of the request, which must start with `/`
+    * **httpCode&lt;Number&gt;** : the httpCode of the response, default is `200`
+    * **expectedResponse&lt;Object&gt;** : the response nock will return for the request. It is *not* the response expected from the library, but just the request call.
 
 Here is an example of a provider implementation
 ```javascript
@@ -29,6 +37,23 @@ Here is an example of a provider implementation
             ....
             }
        }
+    },
+
+    test: {
+      testCommand: 'my-provider-name://fetchData?type=allFeeds&id=XXX',
+      requestMocks: [{
+        host: 'http://api.my-server.com',
+        method: 'get',
+        path: '/feeds/id/XXX',
+        httpCode: 200, // unecessary here cause it will default to 200
+        expectedResponse: {}, // full expected response from a get request to http://api.my-server.com/feeds/id/XXX
+      }, {
+        host: 'https://auth.my-server.com',
+        method: 'post',
+        path: '/token',
+        httpCode: 200,
+        expectedResponse: { token: 'XXXX' },
+      }],
     },
 
     handler: providerInterface => params => {
@@ -60,8 +85,10 @@ the handler has to explicitly return the response using either the `sendResponse
 
 ## Tests
 
-The provider needs to have tests implemented, and the command `npm test` must pass in order for the bundle to build.
-We recomment `ava` with the configuration illustrated in this starter project to make sure tests will pass in the CI process
+It is better if the provider has tests, but there is no strict enforcement of this. However, integration tests are ran.
+This tests rely on the test property of the provider, and bundling will fail if this property is not correctly set according to the documentation above.
+
+Integration test don't test the provider's internal work fully. They just make sure that the provider returns something - even an error.
 
 ## Data output
 

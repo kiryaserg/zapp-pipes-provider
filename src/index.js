@@ -1,1 +1,3 @@
-export { provider } from './provider';
+import provider from './provider';
+
+module.exports = provider;

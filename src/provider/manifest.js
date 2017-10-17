@@ -1,16 +1,13 @@
 export const manifest = {
-  handlers: ['collection', 'item'],
+  handlers: ['categories', 'posts'],
   help: {
-    collection: {
-      description: 'retrieves a collection or a list of collection',
-      params: {
-        id: 'optional. if provided, will return that specific collection. Will return all collections if ommited',
-      }
+    categories: {
+      description: 'retrieves a list of available categories',
     },
-    item: {
-      description: 'retrieves the item with the given id',
+    posts: {
+      description: 'retrieves a list of posts related to a specific category',
       params: {
-        id: 'required. id of the requested item',
+        categories: 'comma separated category id',
       },
     },
   }

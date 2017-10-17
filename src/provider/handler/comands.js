@@ -1,8 +1,8 @@
 
-import { getCollection } from './getCollection';
-import { getItem } from './getItem';
+import { getCategories } from './getCategories';
+import { getPosts } from './getPosts';
 
 export const commands = {
-  collection: getCollection,
-  item: getItem,
+  categories: getCategories,
+  posts: getPosts,
 };

@@ -3,7 +3,7 @@ import { handler } from './handler';
 import { test } from './test';
 
 const provider = {
-  name: 'starter-kit',
+  name: 'wordpress',
   manifest,
   handler,
   test,

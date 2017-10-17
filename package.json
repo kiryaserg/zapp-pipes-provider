@@ -1,7 +1,7 @@
 {
-  "name": "@applicaster/zapp-pipes-provider-starter-kit",
+  "name": "@applicaster/zapp-pipes-provider-wordpress",
   "version": "1.0.0",
-  "description": "example provider project for zapp-pipes",
+  "description": "Simple Wordpress DataSource provider",
   "main": "lib/index.js",
   "scripts": {
     "test": "node_modules/.bin/ava -v",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/applicaster/zapp-pipes-provider-starter-kit.git"
+    "url": "git+ssh://git@github.com/applicaster/WordpressDataSourceAdapter-js.git"
   },
   "keywords": [
     "applicaster",
@@ -22,10 +22,12 @@
   "author": "applicaster",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://github.com/applicaster/zapp-pipes-provider-starter-kit/issues"
+    "url": "https://github.com/applicaster/WordpressDataSourceAdapter-js/issues"
   },
-  "homepage": "https://github.com/applicaster/zapp-pipes-provider-starter-kit#readme",
-  "dependencies": {},
+  "homepage": "https://github.com/applicaster/WordpressDataSourceAdapter-js#readme",
+  "dependencies": {
+    "axios": "^0.16.2"
+  },
   "devDependencies": {
     "@applicaster/zapp-pipes-dev-kit": "^1.0.9",
     "ava": "^0.19.0",

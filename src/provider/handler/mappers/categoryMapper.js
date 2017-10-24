@@ -1,7 +1,7 @@
 export function mapCategory(category) {
   let result = {
     type: {
-      value: 'link'
+      value: 'feed'
     },
     media_group: [],
     extensions: {},
@@ -11,6 +11,7 @@ export function mapCategory(category) {
   result.id = category.id;
   result.title = category.name;
 
+  //formatted url to retrieve this category's posts inside the Zapp app
   result.content = {
     type: 'atom',
     rel: 'self',

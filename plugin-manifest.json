@@ -1,0 +1,46 @@
+{
+  "api": {
+  },
+  "dependency_repository_url": [
+    "https://github.com/applicaster/WordpressDataSourceAdapter-js/"
+  ],
+  "platform": null,
+  "author_name": "Yaniv Solnik",
+  "author_email": "y.solnik@applicaster.com",
+  "manifest_version": "0.1.0",
+  "name": "Wordpress Datasource",
+  "description": "Wordpress API datasource",
+  "type": "data_source_provider",
+  "identifier": "Wordpress-ds",
+  "dependency_name": "@applicaster/zapp-pipes-provider-wordpress",
+  "dependency_version": "1.0.0",
+  "whitelisted_account_ids": [
+
+  ],
+  "min_zapp_sdk": "4.0.0",
+  "deprecated_since_zapp_sdk": "",
+  "unsupported_since_zapp_sdk": "",
+  "scheme": "wordpress",
+  "data_types": [
+    {
+      "label": "Categories",
+      "value": "categories",
+      "documentation": {
+        "link": "http://zapp-tech-book.herokuapp.com/Zapp-Pipes/5.-Feed-API.html",
+        "input_description": "list of categories",
+        "input_placeholder": "nothing to see here",
+        "input_description_image_url": ""
+      }
+    },
+    {
+      "label": "Posts",
+      "value": "posts",
+      "documentation": {
+        "link": "http://zapp-tech-book.herokuapp.com/Zapp-Pipes/5.-Feed-API.html",
+        "input_description": "comma separated category ids",
+        "input_placeholder": "Please enter categories ids",
+        "input_description_image_url": ""
+      }
+    }
+  ]
+}

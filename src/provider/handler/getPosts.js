@@ -2,27 +2,36 @@ import axios from 'axios';
 import {mapPost} from './mappers/postMapper';
 
 export function getPosts(params) {
-  const {categories} = params;
+  const {url, categories} = params;  
   return new Promise((resolve, reject) => {
-    axios.get(`http://demo.wp-api.org/wp-json/wp/v2/posts?categories=${categories}`).then(response => {
+
+    if (!categories) {
+      return reject({message: 'must enter at least one category id', statusCode: 500});
+    }
+
+    //call the WP-API posts endpoint
+    axios.get(`${url}/wp-json/wp/v2/posts?categories=${categories}`).then(response => {
       if (!response.data) {
         return reject('no data');
       }
 
+      //map the returned data to match Zapp app requirements
       const result = {type:{value:'feed'}, entry:[]};
       if (response.data.length > 0) {
         result.entry = response.data.map(mapPost);
       }
 
+      //fetch all the media items using the WP-API media endpoint
       let mediaPromises = [];
       result.entry.forEach(post=>{
         if (post.extensions.featured_media) {
-          mediaPromises.push(axios.get(`https://demo.wp-api.org/wp-json/wp/v2/media/${post.extensions.featured_media}`));
+          mediaPromises.push(axios.get(`${url}/wp-json/wp/v2/media/${post.extensions.featured_media}`));
         }
       });
 
       if (mediaPromises.length > 0) {
         axios.all(mediaPromises).then(responses => {
+          //add each media item to its respective post object
           responses.forEach(response => {
             if (response.status == 200) {
               if (response.data &&
@@ -50,6 +59,8 @@ export function getPosts(params) {
       } else {
         resolve(result);
       }
+    }).catch(error => {
+      reject(error);
     });
   });
 };

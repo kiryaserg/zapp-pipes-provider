@@ -23,9 +23,9 @@ export function getPosts(params) {
 
       //fetch all the media items using the WP-API media endpoint
       let mediaPromises = [];
-      result.entry.forEach(post=>{
-        if (post.extensions.featured_media) {
-          mediaPromises.push(axios.get(`${url}/wp-json/wp/v2/media/${post.extensions.featured_media}`));
+      result.entry.forEach(result=>{
+        if (result.featured_media) {
+          mediaPromises.push(axios.get(`${url}/wp-json/wp/v2/media/${result.featured_media}`));
         }
       });
 
@@ -40,7 +40,7 @@ export function getPosts(params) {
                   response.data.media_details.sizes.thumbnail) {
 
                   for (let i = 0; i < result.entry.length; i++) {
-                    if (result.entry[i].extensions.featured_media == response.data.id) {
+                    if (result.entry[i].featured_media == response.data.id) {
                       result.entry[i].media_group.push({
                         type: 'image',
                         media_item: [{
@@ -48,6 +48,10 @@ export function getPosts(params) {
                           key: 'image_base',
                         }],
                       });
+
+                      //let's remove this property now that we don't need it
+                      delete(result.entry[i].featured_media);
+
                       break;
                     }
                   }

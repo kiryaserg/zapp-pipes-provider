@@ -22,7 +22,7 @@ export function mapPost(post) {
 
   //article's media id, to be fetched later
   if (post.featured_media) {
-    result.extensions.featured_media = post.featured_media;
+    result.featured_media = post.featured_media;
   }
 
   //adding the post's content as an escaped string

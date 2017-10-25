@@ -7,6 +7,7 @@ export function getPosts(params) {
   return new Promise((resolve, reject) => {
     const aUrl = _url.parse(url);
     
+    //make sure this is a valid wordpress category url
     if (!aUrl || aUrl.path.indexOf('/category/') == -1 || aUrl.path.split('/').length < 3) {
       return reject({message: 'malformed wordpress category page url', 
                     statusCode: 500});
@@ -15,7 +16,7 @@ export function getPosts(params) {
     let categorySlug = aUrl.path.split('/').pop();
     const baseUrl = `${aUrl.protocol}//${aUrl.host}`;
 
-    //call the WP-API categories endpoint to get the category id
+    //call the WP-API categories endpoint to get the category id from our input slug
     axios.get(`${baseUrl}/wp-json/wp/v2/categories?slug=${categorySlug}`).then(response => {
       if (!response.data || response.data.length == 0 || !response.data[0].id) {
         throw ({message: `can't find category:${categorySlug}`, statusCode: 500})

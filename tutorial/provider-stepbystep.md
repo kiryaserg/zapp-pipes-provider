@@ -9,6 +9,9 @@ Our data-source will use the following Wordpress APIs:
 * Get categories:
 http://demo.wp-api.org/wp-json/wp/v2/categories returns a JSON with an array of categories and their metadata.
 
+* Get category:
+http://demo.wp-api.org/wp-json/wp/v2/categories?slug=[category_slug] returns a JSON with a category that matches the input slug. We need this endpoint to retreieve a category id from a category slug (which is how a category is represented in a wordpress website url)
+
 * Get posts:
 http://demo.wp-api.org/wp-json/wp/v2/posts?categories=[categoriesIds]
 returns a JSON with an array of all posts that are linked to the categoriesIds parameter, and their metadata.
@@ -17,10 +20,10 @@ returns a JSON with an array of all posts that are linked to the categoriesIds p
 https://demo.wp-api.org/wp-json/wp/v2/media/[mediaId]
 returns a JSON with the metadata of the media item with a specified mediaId parameter.
 
-Our data source provider will expose two commands that the Zapp app will be able to use, both commands will receive the Wordpress website URL as a parameter (in our example it will be `http://demo.wp-api.org`):
+Our data source provider will expose two types that the Zapp app will be able to use:
 
-1. `categories` - will return a feed item that contains an array of categories.
-2. `posts` - will get a category id and return a feed that contains an array of posts.
+1. `categories` - will get a wordpress website URL (e.g. `https://demo.wp-api.org`) and return a feed item that contains an array of categories.
+2. `posts` - will get a category page URL (e.g. `https://demo.wp-api.org/category/facilis-dignissimos/`) and return a feed that contains an array of posts.
 
 ## Step 1 - Preparing the project
 
@@ -75,8 +78,7 @@ handlers: ['categories', 'posts']
 In addition, we should change the help object to describe our two commands:
 
 ```javascript
-
-help: {
+  help: {
     categories: {
       description: 'retrieves a list of available categories',
       params: {
@@ -86,11 +88,10 @@ help: {
     posts: {
       description: 'retrieves a list of posts related to a specific category',
       params: {
-        url: 'url of the wordpress website you would like to use',
-        categories: 'comma separated category id'
+        url: 'url of the wordpress website category page you would like to use',
       },
     },
-
+  }
 ```
 
 Now you can open the provider's entrance point which is `index.js` under the `src/provider` folder.
@@ -108,11 +109,11 @@ const provider = {
 
 The Zapp app will call our data source provider in the following format:
 
-`wordpress://fetchData?url=urlValue&type=dataType`
+`wordpress://fetchData?type=dataType&url=urlValue`
 
 1. `scheme` - `wordpress` in our case, we will define it in the plugin manifest (down in the deploy section).
-2. `url` - the value that the user puts in Zapp in the feed manager, can be ID or a full URL, according to the provider need.
-3. `type` - the data type the user choose in Zapp according to what we defined in the plugin manifest (down in the deploy section).
+2. `type` - the data type the user chooses in Zapp according to what we defined in the plugin manifest (down in the deploy section).
+3. `url` - the value that the user puts in Zapp in the feed manager, can be ID or a full URL, according to the provider's needs.
 
 One more thing before we continue - the starter-kit includes an example code that you should remove since our provider will already throw an error once it gets an undefined type.
 Open `index.js` under the `src/provider/handler` folder and remove the following code:
@@ -193,26 +194,20 @@ It also adds a formatted URL for getting the categories posts. This URL will be 
 
 ```javascript
 export function mapCategory(category) {
-  let result = {
+  return {
     type: {
       value: 'feed'
     },
+    id: category.id,
+    title: category.name,
     media_group: [],
-    extensions: {},
-    content: {}
+    extensions: {},      
+    content: {
+      type: 'atom',
+      rel: 'self',
+      src: `wordpress://fetchData?type=posts&categories=${category.id}` //formatted url to retrieve this category's posts inside the Zapp app
+    }
   };
-
-  result.id = category.id;
-  result.title = category.name;
-
-  //formatted url to retrieve this category's posts inside the Zapp app
-  result.content = {
-    type: 'atom',
-    rel: 'self',
-    src: `wordpress://fetchData?type=posts&categories=${result.id}`,
-  };
-
-  return result;
 }
 ```
 
@@ -223,19 +218,35 @@ The `getPosts.js` file starts very much like the `getCategories.js` one, using `
 ```javascript
 import axios from 'axios';
 import {mapPost} from './mappers/postMapper';
+import _url from 'url';
 
 export function getPosts(params) {
-  const {url, categories} = params;  
+  const {url} = params;  
   return new Promise((resolve, reject) => {
-
-    if (!categories) {
-      return reject({message: 'must enter at least one category id', statusCode: 500});
+    const aUrl = _url.parse(url);
+    
+    //make sure this is a valid wordpress category url
+    if (!aUrl || aUrl.path.indexOf('/category/') == -1 || aUrl.path.split('/').length < 3) {
+      return reject({message: 'malformed wordpress category page url', 
+                    statusCode: 500});
     }
 
-    //call the WP-API posts endpoint
-    axios.get(`${url}/wp-json/wp/v2/posts?categories=${categories}`).then(response => {
+    let categorySlug = aUrl.path.split('/').pop();
+    const baseUrl = `${aUrl.protocol}//${aUrl.host}`;
+
+    //call the WP-API categories endpoint to get the category id from our input slug
+    axios.get(`${baseUrl}/wp-json/wp/v2/categories?slug=${categorySlug}`).then(response => {
+      if (!response.data || response.data.length == 0 || !response.data[0].id) {
+        throw ({message: `can't find category:${categorySlug}`, statusCode: 500})
+      }
+
+      const categoryId = response.data[0].id;
+      //call the WP-API posts endpoint
+      return axios.get(`${baseUrl}/wp-json/wp/v2/posts?categories=${categoryId}`);
+    }).then(response => {
+
       if (!response.data) {
-        return reject('no data');
+        throw ({message: `can't find posts for category:${categorySlug}`})
       }
 
       //map the returned data to match Zapp app requirements
@@ -252,7 +263,7 @@ But the post data is missing the URL of its media items and that's why we need t
       let mediaPromises = [];
       result.entry.forEach(result=>{
         if (result.featured_media) {
-          mediaPromises.push(axios.get(`${url}/wp-json/wp/v2/media/${result.featured_media}`));
+          mediaPromises.push(axios.get(`${baseUrl}/wp-json/wp/v2/media/${result.featured_media}`));
         }
       });
 
@@ -315,15 +326,14 @@ export function mapPost(post) {
     type: {
       value: 'article'
     },
+    id: post.id,
+    title: (post.title && post.title.rendered) ? post.title.rendered : '',
+    publish: post.date,
     media_group: [],
     extensions: {},
     content: {},
     link: {}
   };
-
-  result.id = post.id;
-  result.title = (post.title && post.title.rendered)?post.title.rendered:'';
-  result.publish = post.date;
 
   //the post's link that will be used when a user shares the post
   result.link = {
@@ -419,14 +429,14 @@ We do that by running `npm publish` in our terminal.
     * `Type label` - a user-friendly name for your data source type. for example: `Categories`
     * `Type value` - the actual string that represents your type. for example: `categories`
     * `Documentation link` - a link to a web page that explains this data type in a way that a non-technical user can set it up
-    * `Input description` - A description for the expected provider input type. for example: `list of categories`
+    * `Input description` - A description for the expected provider input type. for example: `full url of the website homepage`
     * `Input text placeholder` - This text will be presented as placeholder text in the input field
     * `Input info screenshot URL` - Optional, Screenshot URL that provides further info for the requested input
 
 5. The `zappifest` tool should, at this point, to create a `plugin-manifest.json` file.
   Now run `zappifest publish --manifest plugin-manifest.json --access-token $ZAPP_TOKEN` and your data source provider is published on the Zapp platform and ready to use in Zapp apps.
   
-The full source code of this tutorial can be found [here at GitHub](https://github.com/applicaster/WordpressDataSourceAdapter-js).
+The full source code of this tutorial can be found [here at GitHub](https://github.com/applicaster/zapp-pipes-wordpress/).
 
 
 

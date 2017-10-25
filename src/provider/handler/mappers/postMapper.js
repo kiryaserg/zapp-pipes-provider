@@ -3,15 +3,14 @@ export function mapPost(post) {
     type: {
       value: 'article'
     },
+    id: post.id,
+    title: (post.title && post.title.rendered) ? post.title.rendered : '',
+    publish: post.date,
     media_group: [],
     extensions: {},
     content: {},
     link: {}
   };
-
-  result.id = post.id;
-  result.title = (post.title && post.title.rendered)?post.title.rendered:'';
-  result.publish = post.date;
 
   //the post's link that will be used when a user shares the post
   result.link = {

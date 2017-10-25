@@ -1,22 +1,16 @@
 export function mapCategory(category) {
-  let result = {
+  return {
     type: {
       value: 'feed'
     },
+    id: category.id,
+    title: category.name,
     media_group: [],
-    extensions: {},
-    content: {}
+    extensions: {},      
+    content: {
+      type: 'atom',
+      rel: 'self',
+      src: `wordpress://fetchData?type=posts&categories=${category.id}` //formatted url to retrieve this category's posts inside the Zapp app
+    }
   };
-
-  result.id = category.id;
-  result.title = category.name;
-
-  //formatted url to retrieve this category's posts inside the Zapp app
-  result.content = {
-    type: 'atom',
-    rel: 'self',
-    src: `wordpress://fetchData?type=posts&categories=${result.id}`,
-  };
-
-  return result;
 }

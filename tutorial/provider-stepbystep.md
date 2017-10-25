@@ -158,29 +158,22 @@ Our file will export one function, also called `getCategories`, this function re
 It will look like that:
 
 ```javascript
-import axios from 'axios';
-import {mapCategory} from './mappers/categoryMapper';
+import axios from "axios";
+import { mapCategory } from "./mappers/categoryMapper";
 
 export function getCategories(params) {
-  const {url} = params;
-  return new Promise((resolve, reject) => {
-    //call the WP-API categories endpoint
-    axios.get(`${url}/wp-json/wp/v2/categories`).then(response => {
-      if (!response.data) {
-        return reject('no data');
-      }
+  const { url } = params;
+  //call the wp-api categories endpoint
+  return axios.get(`${url}/wp-json/wp/v2/categories`).then(response => {
+    //throw error if returned data is not good
+    if (!response.data || response.data.length === 0) {
+      throw { message: "no data", statusCode: 500 };
+    }
 
-      //map the returned data to match Zapp app requirements
-      const result = {type:{value:'feed'}, entry:[]};
-      if (response.data.length > 0) {
-        result.entry = response.data.map(mapCategory);
-      }
-      resolve(result);
-    }).catch(error=>{
-      reject(error);
-    });
+    //map the returned data to match Zapp app requirements
+    return { type: { value: "feed" }, entry: response.data.map(mapCategory) };
   });
-};
+}
 ```
 Pay attention that we imported a `mapCategory` function, this function will help us transform the returned categories data to the atom feed format that the Zapp app requires.
 
@@ -196,15 +189,15 @@ It also adds a formatted URL for getting the categories posts. This URL will be 
 export function mapCategory(category) {
   return {
     type: {
-      value: 'feed'
+      value: "feed"
     },
     id: category.id,
     title: category.name,
     media_group: [],
-    extensions: {},      
+    extensions: {},
     content: {
-      type: 'atom',
-      rel: 'self',
+      type: "atom",
+      rel: "self",
       src: `wordpress://fetchData?type=posts&categories=${category.id}` //formatted url to retrieve this category's posts inside the Zapp app
     }
   };
@@ -213,107 +206,87 @@ export function mapCategory(category) {
 
 ## Step 5 - getPosts.js
 
-The `getPosts.js` file starts very much like the `getCategories.js` one, using `axios` to retrieve data from the Wordpress API:
+The `getPosts.js` file starts very much like the `getCategories.js` one, using `axios` to retrieve data from the Wordpress API, but the post data that we receive from the `posts` end point is missing the URL of the posts media items and that's why we need to execute another call to the Wordpress API for each post to retrieve its media item. 
+We are doing that with the `mapPostMediaRequest` which creates the proper media request for each post and then passes the result `mediaItems` list to the `postMapper`
+
 
 ```javascript
-import axios from 'axios';
-import {mapPost} from './mappers/postMapper';
-import _url from 'url';
+import axios from "axios";
+import { mapPost } from "./mappers/postMapper";
+import { mapPostMediaRequest } from "./mappers/mapPostMediaRequest";
+import _url from "url";
 
 export function getPosts(params) {
-  const {url} = params;  
-  return new Promise((resolve, reject) => {
-    const aUrl = _url.parse(url);
-    
-    //make sure this is a valid wordpress category url
-    if (!aUrl || aUrl.path.indexOf('/category/') == -1 || aUrl.path.split('/').length < 3) {
-      return reject({message: 'malformed wordpress category page url', 
-                    statusCode: 500});
-    }
+  const { url } = params;
 
-    let categorySlug = aUrl.path.split('/').pop();
-    const baseUrl = `${aUrl.protocol}//${aUrl.host}`;
+  const aUrl = _url.parse(url);
 
-    //call the WP-API categories endpoint to get the category id from our input slug
-    axios.get(`${baseUrl}/wp-json/wp/v2/categories?slug=${categorySlug}`).then(response => {
+  //make sure this is a valid wordpress category url
+  if (
+    !aUrl ||
+    aUrl.path.indexOf("/category/") == -1 ||
+    aUrl.path.split("/").length < 3
+  ) {
+    //return reject({message: 'malformed wordpress category page url',
+    //              statusCode: 500});
+    throw {
+      message: "malformed wordpress category page url",
+      statusCode: 500
+    };
+  }
+
+  //get the category slug from the url
+  let categorySlug = aUrl.path.split("/").pop();
+
+  //save the baseUrl for the api calls
+  const baseUrl = `${aUrl.protocol}//${aUrl.host}`;
+
+  //call the wp-api categories endpoint to get the category id from our input slug
+  return axios
+    .get(`${baseUrl}/wp-json/wp/v2/categories?slug=${categorySlug}`)
+    .then(response => {
+      //throw an error if category doesn't exist
       if (!response.data || response.data.length == 0 || !response.data[0].id) {
-        throw ({message: `can't find category:${categorySlug}`, statusCode: 500})
+        throw {
+          message: `can't find category:${categorySlug}`,
+          statusCode: 500
+        };
       }
 
       const categoryId = response.data[0].id;
-      //call the WP-API posts endpoint
-      return axios.get(`${baseUrl}/wp-json/wp/v2/posts?categories=${categoryId}`);
-    }).then(response => {
 
+      //call the wp-api posts endpoint
+      return axios.get(
+        `${baseUrl}/wp-json/wp/v2/posts?categories=${categoryId}`
+      );
+    })
+    .then(response => {
       if (!response.data) {
-        throw ({message: `can't find posts for category:${categorySlug}`})
+        throw {
+          message: `can't find posts for category:${categorySlug}`
+        };
       }
 
-      //map the returned data to match Zapp app requirements
-      const result = {type:{value:'feed'}, entry:[]};
-      if (response.data.length > 0) {
-        result.entry = response.data.map(mapPost);
-      }
-```
-
-But the post data is missing the URL of its media items and that's why we need to execute another call to the Wordpress API for each post to retrieve its media item.
-
-```javascript
-      //fetch all the media items using the WP-API media endpoint
-      let mediaPromises = [];
-      result.entry.forEach(result=>{
-        if (result.featured_media) {
-          mediaPromises.push(axios.get(`${baseUrl}/wp-json/wp/v2/media/${result.featured_media}`));
-        }
+      //fetch all posts media items - since we need a separate call to get the full media item url
+      return Promise.all(
+        response.data.map(mapPostMediaRequest(baseUrl))
+      ).then(mediaItems => {
+        //finally map the posts, attach their respective media items and return a feed item
+        return {
+          type: {
+            value: "feed"
+          },
+          entry: response.data.map(mapPost(mediaItems))
+        };
       });
-
-      if (mediaPromises.length > 0) {
-        axios.all(mediaPromises).then(responses => {
-          //add each media item to its respective post object
-          responses.forEach(response => {
-            if (response.status == 200) {
-              if (response.data &&
-                  response.data.media_details &&
-                  response.data.media_details.sizes &&
-                  response.data.media_details.sizes.thumbnail) {
-
-                  for (let i = 0; i < result.entry.length; i++) {
-                    if (result.entry[i].featured_media == response.data.id) {
-                      result.entry[i].media_group.push({
-                        type: 'image',
-                        media_item: [{
-                          src: response.data.media_details.sizes.thumbnail.source_url,
-                          key: 'image_base',
-                        }],
-                      });
-
-                      //let's remove this property now that we don't need it
-                      delete(result.entry[i].featured_media);
-
-                      break;
-                    }
-                  }
-              }
-            }
-          });
-          resolve(result);
-        });
-      } else {
-        resolve(result);
-      }
-    }).catch(error => {
-      reject(error);
     });
-  });
-};
+}
 ```
-
-> To store the post's media item id we are using the `featured_media` custom property. We need to remember to delete this property after we are done with it, as it is not part of the Zapp atom model.
 
 ## Step 6 - postMapper.js
 
-In this file, we will get the post's `id`, `title`, `featured_media` and `published` properties and put them in their respective atom article model structure.
-The `featured_media` property is the one that enables us later to call the Wordpress media API to retrieve the media's metadata.
+In this file, we will get the post's `id`, `title` and `published` properties and put them in their respective atom article model structure.
+We are using a [curried function](https://www.sitepoint.com/currying-in-functional-javascript/) to be able to pass both the mediaItems and the post data (that is coming from the `Array.map` method).
 
 The result will be a model of the `article` type. This means that we will return the actual post's HTML in the `content.html` property (remember that it needs to be encoded).
 We are also returning the post's link in the `link` property so the Zapp app's user will be able to share the original link of the post.
@@ -321,40 +294,55 @@ We are also returning the post's link in the `link` property so the Zapp app's u
 >In this example we are using the `article` model, if we wanted the original post link to open in a webview we could use the `link` type. You can learn more about the different supported models [here](http://zapp-tech-book.herokuapp.com/Zapp-Pipes/5.-Feed-API.html).
 
 ```javascript
-export function mapPost(post) {
-  let result = {
-    type: {
-      value: 'article'
-    },
-    id: post.id,
-    title: (post.title && post.title.rendered) ? post.title.rendered : '',
-    publish: post.date,
-    media_group: [],
-    extensions: {},
-    content: {},
-    link: {}
-  };
-
-  //the post's link that will be used when a user shares the post
-  result.link = {
-    type: 'text/html',
-    rel: 'alternate',
-    href: post.link
-  };
-
-  //article's media id, to be fetched later
-  if (post.featured_media) {
-    result.featured_media = post.featured_media;
-  }
-
-  //adding the post's content as an escaped string
-  if (post.content.rendered) {
-    result.content = {
-      html: encodeURIComponent(post.content.rendered)
+export function mapPost(mediaItems) {
+  return function(post) {
+    let result = {
+      type: {
+        value: "article"
+      },
+      id: post.id,
+      title: post.title && post.title.rendered ? post.title.rendered : "",
+      publish: post.date,
+      media_group: [],
+      extensions: {},
+      content: {},
+      link: {}
     };
-  }
 
-  return result;
+    //the post's link that will be used when a user shares the post
+    result.link = {
+      type: "text/html",
+      rel: "alternate",
+      href: post.link
+    };
+
+    //if we can find the post's media id then let's add it's url to our media_group
+    mediaItems.forEach(mediaItem => {
+      if (
+        mediaItem.id === post.featured_media &&
+        result.media_group.length === 0
+      ) {
+        result.media_group.push({
+          type: "image",
+          media_item: [
+            {
+              src: mediaItem.image,
+              key: "image_base"
+            }
+          ]
+        });
+      }
+    });
+
+    //adding the post's content as an escaped string
+    if (post.content.rendered) {
+      result.content = {
+        html: encodeURIComponent(post.content.rendered)
+      };
+    }
+
+    return result;
+  };
 }
 ```
 

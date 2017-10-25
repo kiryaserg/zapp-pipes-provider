@@ -1,23 +1,16 @@
-import axios from 'axios';
-import {mapCategory} from './mappers/categoryMapper';
+import axios from "axios";
+import { mapCategory } from "./mappers/categoryMapper";
 
 export function getCategories(params) {
-  const {url} = params;
-  return new Promise((resolve, reject) => {
-    //call the WP-API categories endpoint
-    axios.get(`${url}/wp-json/wp/v2/categories`).then(response => {
-      if (!response.data) {
-        return reject('no data');
-      }
+  const { url } = params;
+  //call the wp-api categories endpoint
+  return axios.get(`${url}/wp-json/wp/v2/categories`).then(response => {
+    //throw error if returned data is not good
+    if (!response.data || response.data.length === 0) {
+      throw { message: "no data", statusCode: 500 };
+    }
 
-      //map the returned data to match Zapp app requirements      
-      const result = {type:{value:'feed'}, entry:[]};
-      if (response.data.length > 0) {
-        result.entry = response.data.map(mapCategory);
-      }
-      resolve(result);
-    }).catch(error=>{
-      reject(error);
-    });
+    //map the returned data to match Zapp app requirements
+    return { type: { value: "feed" }, entry: response.data.map(mapCategory) };
   });
-};
+}

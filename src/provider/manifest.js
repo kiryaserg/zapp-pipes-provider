@@ -10,8 +10,8 @@ export const manifest = {
     posts: {
       description: 'retrieves a list of posts related to a specific category',
       params: {
-        url: 'url of the wordpress website category page you would like to use',
-      },
-    },
+        url: 'url of the wordpress website category page you would like to use'
+      }
+    }
   }
 };

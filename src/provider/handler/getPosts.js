@@ -1,7 +1,7 @@
-import axios from "axios";
-import { mapPost } from "./mappers/postMapper";
-import { mapPostMediaRequest } from "./mappers/mapPostMediaRequest";
-import _url from "url";
+import axios from 'axios';
+import { mapPost } from './mappers/postMapper';
+import { mapPostMediaRequest } from './mappers/mapPostMediaRequest';
+import _url from 'url';
 
 export function getPosts(params) {
   const { url } = params;
@@ -11,19 +11,19 @@ export function getPosts(params) {
   //make sure this is a valid wordpress category url
   if (
     !aUrl ||
-    aUrl.path.indexOf("/category/") == -1 ||
-    aUrl.path.split("/").length < 3
+    aUrl.path.indexOf('/category/') == -1 ||
+    aUrl.path.split('/').length < 3
   ) {
     //return reject({message: 'malformed wordpress category page url',
     //              statusCode: 500});
     throw {
-      message: "malformed wordpress category page url",
+      message: 'malformed wordpress category page url',
       statusCode: 500
     };
   }
 
   //get the category slug from the url
-  let categorySlug = aUrl.path.split("/").pop();
+  const categorySlug = aUrl.path.split('/').pop();
 
   //save the baseUrl for the api calls
   const baseUrl = `${aUrl.protocol}//${aUrl.host}`;
@@ -61,7 +61,7 @@ export function getPosts(params) {
         //finally map the posts, attach their respective media items and return a feed item
         return {
           type: {
-            value: "feed"
+            value: 'feed'
           },
           entry: response.data.map(mapPost(mediaItems))
         };

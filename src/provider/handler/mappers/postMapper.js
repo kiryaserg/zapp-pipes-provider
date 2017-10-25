@@ -1,11 +1,11 @@
 export function mapPost(mediaItems) {
   return function(post) {
-    let result = {
+    const result = {
       type: {
-        value: "article"
+        value: 'article'
       },
       id: post.id,
-      title: post.title && post.title.rendered ? post.title.rendered : "",
+      title: post.title && post.title.rendered ? post.title.rendered : '',
       publish: post.date,
       media_group: [],
       extensions: {},
@@ -15,8 +15,8 @@ export function mapPost(mediaItems) {
 
     //the post's link that will be used when a user shares the post
     result.link = {
-      type: "text/html",
-      rel: "alternate",
+      type: 'text/html',
+      rel: 'alternate',
       href: post.link
     };
 
@@ -27,11 +27,11 @@ export function mapPost(mediaItems) {
         result.media_group.length === 0
       ) {
         result.media_group.push({
-          type: "image",
+          type: 'image',
           media_item: [
             {
               src: mediaItem.image,
-              key: "image_base"
+              key: 'image_base'
             }
           ]
         });

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 export function mapPostMediaRequest(baseUrl) {
   return function(post) {

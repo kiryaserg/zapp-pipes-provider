@@ -1,4 +1,4 @@
-import { commands } from "./comands";
+import { commands } from './comands';
 
 export const handler = providerInterface => params => {
   const { type, id } = params;

@@ -1,18 +1,33 @@
 import axios from 'axios';
 import {mapPost} from './mappers/postMapper';
+import _url from 'url';
 
 export function getPosts(params) {
-  const {url, categories} = params;  
+  const {url} = params;  
   return new Promise((resolve, reject) => {
-
-    if (!categories) {
-      return reject({message: 'must enter at least one category id', statusCode: 500});
+    const aUrl = _url.parse(url);
+    
+    if (!aUrl || aUrl.path.indexOf('/category/') == -1 || aUrl.path.split('/').length < 3) {
+      return reject({message: 'malformed wordpress category page url', 
+                    statusCode: 500});
     }
 
-    //call the WP-API posts endpoint
-    axios.get(`${url}/wp-json/wp/v2/posts?categories=${categories}`).then(response => {
+    let categorySlug = aUrl.path.split('/').pop();
+    const baseUrl = `${aUrl.protocol}//${aUrl.host}`;
+
+    //call the WP-API categories endpoint to get the category id
+    axios.get(`${baseUrl}/wp-json/wp/v2/categories?slug=${categorySlug}`).then(response => {
+      if (!response.data || response.data.length == 0 || !response.data[0].id) {
+        throw ({message: `can't find category:${categorySlug}`, statusCode: 500})
+      }
+
+      const categoryId = response.data[0].id;
+      //call the WP-API posts endpoint
+      return axios.get(`${baseUrl}/wp-json/wp/v2/posts?categories=${categoryId}`);
+    }).then(response => {
+
       if (!response.data) {
-        return reject('no data');
+        throw ({message: `can't find posts for category:${categorySlug}`})
       }
 
       //map the returned data to match Zapp app requirements
@@ -25,7 +40,7 @@ export function getPosts(params) {
       let mediaPromises = [];
       result.entry.forEach(result=>{
         if (result.featured_media) {
-          mediaPromises.push(axios.get(`${url}/wp-json/wp/v2/media/${result.featured_media}`));
+          mediaPromises.push(axios.get(`${baseUrl}/wp-json/wp/v2/media/${result.featured_media}`));
         }
       });
 

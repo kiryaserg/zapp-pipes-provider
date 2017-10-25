@@ -1,6 +1,6 @@
 {
   "name": "@applicaster/zapp-pipes-provider-wordpress",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Simple Wordpress DataSource provider",
   "main": "lib/index.js",
   "scripts": {

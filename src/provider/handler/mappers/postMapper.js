@@ -9,10 +9,13 @@ export function mapPost(mediaItems) {
     } = post;
 
     //if we can find the post's media id then let's add its url to our media_group
-    const media_group = mediaItems.find(mediaItem => {
-      if (mediaItem && mediaItem.id === post.featured_media) {
-        const { image: src } = mediaItem;
-        return [
+    const mediaItem = mediaItems.find(mediaItem => {
+      return mediaItem && mediaItem.id === post.featured_media;
+    });
+
+    const { image: src } = mediaItem || {};
+    const media_group = src
+      ? [
           {
             type: 'image',
             media_item: [
@@ -22,9 +25,8 @@ export function mapPost(mediaItems) {
               }
             ]
           }
-        ];
-      }
-    });
+        ]
+      : [];
 
     return {
       type: {

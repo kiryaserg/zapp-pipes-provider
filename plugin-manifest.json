@@ -2,7 +2,7 @@
   "api": {
   },
   "dependency_repository_url": [
-    "https://github.com/applicaster/zapp-pipes-wordpress/"
+    "https://github.com/applicaster/zapp-pipes-provider-wordpress/"
   ],
   "platform": null,
   "author_name": "Yaniv Solnik",

@@ -29,7 +29,7 @@ Our data source provider will expose two types that the Zapp app will be able to
 
 The easiest way to start a data-source provider project is to clone the zapp-pipes-provider-starter-kit, so let's do that:
 ```
-git clone https://github.com/applicaster/zapp-pipes-provider-starter-kit.git WordpressDataSourceAdapter-js
+git clone https://github.com/applicaster/zapp-pipes-provider-starter-kit.git zapp-pipes-provider-wordpress
 ```
 Don't forget to replace the git repository to your own one:
 ```
@@ -420,7 +420,7 @@ We do that by running `npm publish` in our terminal.
 5. The `zappifest` tool should, at this point, to create a `plugin-manifest.json` file.
   Now run `zappifest publish --manifest plugin-manifest.json --access-token $ZAPP_TOKEN` and your data source provider is published on the Zapp platform and ready to use in Zapp apps.
   
-The full source code of this tutorial can be found [here at GitHub](https://github.com/applicaster/zapp-pipes-wordpress/).
+The full source code of this tutorial can be found [here at GitHub](https://github.com/applicaster/zapp-pipes-provider-wordpress/).
 
 
 

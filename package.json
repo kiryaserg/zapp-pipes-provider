@@ -14,15 +14,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/applicaster/zapp-pipes-wordpress.git"
+    "url": "git+ssh://git@github.com/applicaster/zapp-pipes-provider-wordpress.git"
   },
   "keywords": ["applicaster", "datasource", "zapp-pipes"],
   "author": "applicaster",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://github.com/applicaster/zapp-pipes-wordpress/issues"
+    "url": "https://github.com/applicaster/zapp-pipes-provider-wordpress/issues"
   },
-  "homepage": "https://github.com/applicaster/zapp-pipes-wordpress#readme",
+  "homepage": "https://github.com/applicaster/zapp-pipes-provider-wordpress#readme",
   "dependencies": {
     "axios": "^0.16.2"
   },

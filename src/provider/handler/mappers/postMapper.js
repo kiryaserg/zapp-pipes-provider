@@ -1,36 +1,47 @@
-export function mapPost(post) {
-  let result = {
-    type: {
-      value: 'article'
-    },
-    media_group: [],
-    extensions: {},
-    content: {},
-    link: {}
-  };
+export function mapPost(mediaItems) {
+  return function(post) {
+    const {
+      id,
+      date: publish,
+      link,
+      title: { rendered: title },
+      content: { rendered: html }
+    } = post;
 
-  result.id = post.id;
-  result.title = (post.title && post.title.rendered)?post.title.rendered:'';
-  result.publish = post.date;
+    //if we can find the post's media id then let's add its url to our media_group
+    const mediaItem = mediaItems.find(mediaItem => {
+      return mediaItem && mediaItem.id === post.featured_media;
+    });
 
-  //the post's link that will be used when a user shares the post
-  result.link = {
-    type: 'text/html',
-    rel: 'alternate',
-    href: post.link
-  };
+    const { image: src } = mediaItem || {};
+    const media_group = src
+      ? [
+          {
+            type: 'image',
+            media_item: [
+              {
+                src,
+                key: 'image_base'
+              }
+            ]
+          }
+        ]
+      : [];
 
-  //article's media id, to be fetched later
-  if (post.featured_media) {
-    result.featured_media = post.featured_media;
-  }
-
-  //adding the post's content as an escaped string
-  if (post.content.rendered) {
-    result.content = {
-      html: encodeURIComponent(post.content.rendered)
+    return {
+      type: {
+        value: 'article'
+      },
+      id,
+      title,
+      publish,
+      media_group,
+      content: { html },
+      link: {
+        type: 'text/html',
+        rel: 'alternate',
+        href: link //the post's link that will be used when a user shares the post
+      }
     };
-  }
-
-  return result;
+  };
 }

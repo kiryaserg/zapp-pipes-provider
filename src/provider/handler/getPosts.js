@@ -1,70 +1,68 @@
 import axios from 'axios';
-import {mapPost} from './mappers/postMapper';
+import { mapPost } from './mappers/postMapper';
+import { mapPostMediaRequest } from './mappers/mapPostMediaRequest';
+import _url from 'url';
 
 export function getPosts(params) {
-  const {url, categories} = params;  
-  return new Promise((resolve, reject) => {
+  const { url } = params;
 
-    if (!categories) {
-      return reject({message: 'must enter at least one category id', statusCode: 500});
-    }
+  const aUrl = _url.parse(url);
 
-    //call the WP-API posts endpoint
-    axios.get(`${url}/wp-json/wp/v2/posts?categories=${categories}`).then(response => {
+  //make sure this is a valid wordpress category url
+  if (
+    !aUrl ||
+    aUrl.path.indexOf('/category/') == -1 ||
+    aUrl.path.split('/').length < 3
+  ) {
+    throw {
+      message: 'malformed wordpress category page url',
+      statusCode: 500
+    };
+  }
+
+  //get the category slug from the url
+  const categorySlug = aUrl.path.split('/').pop();
+
+  //save the baseUrl for the api calls
+  const baseUrl = `${aUrl.protocol}//${aUrl.host}`;
+
+  //call the wp-api categories endpoint to get the category id from our input slug
+  return axios
+    .get(`${baseUrl}/wp-json/wp/v2/categories?slug=${categorySlug}`)
+    .then(response => {
+      //throw an error if category doesn't exist
+      if (!response.data || response.data.length == 0 || !response.data[0].id) {
+        throw {
+          message: `can't find category:${categorySlug}`,
+          statusCode: 500
+        };
+      }
+
+      const categoryId = response.data[0].id;
+
+      //call the wp-api posts endpoint
+      return axios.get(
+        `${baseUrl}/wp-json/wp/v2/posts?categories=${categoryId}`
+      );
+    })
+    .then(response => {
       if (!response.data) {
-        return reject('no data');
+        throw {
+          message: `can't find posts for category:${categorySlug}`
+        };
       }
 
-      //map the returned data to match Zapp app requirements
-      const result = {type:{value:'feed'}, entry:[]};
-      if (response.data.length > 0) {
-        result.entry = response.data.map(mapPost);
-      }
-
-      //fetch all the media items using the WP-API media endpoint
-      let mediaPromises = [];
-      result.entry.forEach(result=>{
-        if (result.featured_media) {
-          mediaPromises.push(axios.get(`${url}/wp-json/wp/v2/media/${result.featured_media}`));
-        }
+      //fetch all posts media items - since we need a separate call to get the full media item url
+      return Promise.all(
+        response.data.map(mapPostMediaRequest(baseUrl))
+      ).then(mediaItems => {
+        //finally map the posts, attach their respective media items and return a feed item
+        return {
+          type: {
+            value: 'feed'
+          },
+          entry: response.data.map(mapPost(mediaItems))
+        };
       });
-
-      if (mediaPromises.length > 0) {
-        axios.all(mediaPromises).then(responses => {
-          //add each media item to its respective post object
-          responses.forEach(response => {
-            if (response.status == 200) {
-              if (response.data &&
-                  response.data.media_details &&
-                  response.data.media_details.sizes &&
-                  response.data.media_details.sizes.thumbnail) {
-
-                  for (let i = 0; i < result.entry.length; i++) {
-                    if (result.entry[i].featured_media == response.data.id) {
-                      result.entry[i].media_group.push({
-                        type: 'image',
-                        media_item: [{
-                          src: response.data.media_details.sizes.thumbnail.source_url,
-                          key: 'image_base',
-                        }],
-                      });
-
-                      //let's remove this property now that we don't need it
-                      delete(result.entry[i].featured_media);
-
-                      break;
-                    }
-                  }
-              }
-            }
-          });
-          resolve(result);
-        });
-      } else {
-        resolve(result);
-      }
-    }).catch(error => {
-      reject(error);
     });
-  });
-};
+}

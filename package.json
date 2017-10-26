@@ -1,30 +1,28 @@
 {
   "name": "@applicaster/zapp-pipes-provider-wordpress",
-  "version": "1.0.2",
+  "version": "1.0.6",
   "description": "Simple Wordpress DataSource provider",
   "main": "lib/index.js",
   "scripts": {
     "test": "node_modules/.bin/ava -v",
     "pretest": "yarn",
-    "start": "node_modules/.bin/nodemon server.js --exec node_modules/.bin/babel-node",
-    "build": "rm -rf lib && NODE_ENV=production node_modules/.bin/babel src -d lib",
+    "start":
+      "node_modules/.bin/nodemon server.js --exec node_modules/.bin/babel-node",
+    "build":
+      "rm -rf lib && NODE_ENV=production node_modules/.bin/babel src -d lib",
     "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/applicaster/WordpressDataSourceAdapter-js.git"
+    "url": "git+ssh://git@github.com/applicaster/zapp-pipes-wordpress.git"
   },
-  "keywords": [
-    "applicaster",
-    "datasource",
-    "zapp-pipes"
-  ],
+  "keywords": ["applicaster", "datasource", "zapp-pipes"],
   "author": "applicaster",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://github.com/applicaster/WordpressDataSourceAdapter-js/issues"
+    "url": "https://github.com/applicaster/zapp-pipes-wordpress/issues"
   },
-  "homepage": "https://github.com/applicaster/WordpressDataSourceAdapter-js#readme",
+  "homepage": "https://github.com/applicaster/zapp-pipes-wordpress#readme",
   "dependencies": {
     "axios": "^0.16.2"
   },

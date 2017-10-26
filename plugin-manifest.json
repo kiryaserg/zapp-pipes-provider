@@ -2,12 +2,12 @@
   "api": {
   },
   "dependency_repository_url": [
-    "https://github.com/applicaster/WordpressDataSourceAdapter-js/"
+    "https://github.com/applicaster/zapp-pipes-wordpress/"
   ],
   "platform": null,
   "author_name": "Yaniv Solnik",
   "author_email": "y.solnik@applicaster.com",
-  "manifest_version": "0.1.0",
+  "manifest_version": "0.1.1",
   "name": "Wordpress Datasource",
   "description": "Wordpress API datasource",
   "type": "data_source_provider",
@@ -27,8 +27,8 @@
       "value": "categories",
       "documentation": {
         "link": "http://zapp-tech-book.herokuapp.com/Zapp-Pipes/5.-Feed-API.html",
-        "input_description": "list of categories",
-        "input_placeholder": "nothing to see here",
+        "input_description": "full url of the website homepage",
+        "input_placeholder": "homepage",
         "input_description_image_url": ""
       }
     },
@@ -37,8 +37,8 @@
       "value": "posts",
       "documentation": {
         "link": "http://zapp-tech-book.herokuapp.com/Zapp-Pipes/5.-Feed-API.html",
-        "input_description": "comma separated category ids",
-        "input_placeholder": "Please enter categories ids",
+        "input_description": "full url of the category page",
+        "input_placeholder": "category",
         "input_description_image_url": ""
       }
     }

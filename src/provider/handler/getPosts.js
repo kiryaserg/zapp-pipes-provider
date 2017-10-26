@@ -14,8 +14,6 @@ export function getPosts(params) {
     aUrl.path.indexOf('/category/') == -1 ||
     aUrl.path.split('/').length < 3
   ) {
-    //return reject({message: 'malformed wordpress category page url',
-    //              statusCode: 500});
     throw {
       message: 'malformed wordpress category page url',
       statusCode: 500

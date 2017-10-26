@@ -17,7 +17,7 @@ export function mapPostMediaRequest(baseUrl) {
             image: response.data.media_details.sizes.thumbnail.source_url
           };
         } else {
-          return { id: -1 };
+          return null;
         }
       });
   };

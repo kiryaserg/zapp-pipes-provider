@@ -6,7 +6,7 @@ const provider = {
   name: 'wordpress',
   manifest,
   handler,
-  test,
+  test
 };
 
 export default provider;

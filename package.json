@@ -1,7 +1,7 @@
 {
-  "name": "@applicaster/zapp-pipes-provider-wordpress",
+  "name": "@applicaster/zapp-pipes-provider-epam",
   "version": "1.0.6",
-  "description": "Simple Wordpress DataSource provider",
+  "description": "Simple Epam DataSource provider",
   "main": "lib/index.js",
   "scripts": {
     "test": "node_modules/.bin/ava -v",

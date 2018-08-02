@@ -1,0 +1,61 @@
+{
+  "type": {
+    "value": "feed"
+  },
+  "title": "<feed TITLE>",
+  "entry": [
+    {
+      "type": {
+        "value": "imageGallery"
+      },
+      "id": "1",
+      "title": "<entryTITLE>",
+      "summary": "<SUMMARY>",
+      "author": {
+        "name": "<AUTHOR NAME>"
+      },
+      "media_group": [
+        {
+          "type": "IMAGE",
+          "media_item": [
+            {
+              "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYXVTbxmHQuOogxDeNx7U6z7neHX4kOQPZEBLG5nzQZoMMhkFN",
+              "key": "<IMAGE KEY 1>",
+              "type": "image"
+            },
+            {
+              "src": "http://another.link.here.com",
+              "key": "<IMAGE KEY 2>",
+              "type": "<image/video/audio>"
+            }
+          ]
+        },
+        {
+          "type": "IMAGE",
+          "media_item": [
+            {
+              "src": "https://i.pinimg.com/564x/94/dd/57/94dd573e4b4de604ea7f33548da99fd6.jpg",
+              "key": "<IMAGE KEY 1>",
+              "type": "<image/video/audio>"
+            },
+            {
+              "src": "http://another.link.here.com",
+              "key": "<IMAGE KEY 2>",
+              "type": "<image/video/audio>"
+            }
+          ]
+        }
+      ],
+      "content": {
+        "type": "<DESCRIBED BELOW>",
+        "src": "<DESCRIBED BELOW>",
+        "content": "<DESCRIBED BELOW>"
+      },
+      "link": {
+        "type": "<DESCRIBED BELOW>",
+        "rel": "<DESCRIBED BELOW>",
+        "href": "<DESCRIBED BELOW>"
+      }
+    }
+  ]
+}

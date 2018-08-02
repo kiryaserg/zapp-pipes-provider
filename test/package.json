@@ -22,12 +22,8 @@
               "src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYXVTbxmHQuOogxDeNx7U6z7neHX4kOQPZEBLG5nzQZoMMhkFN",
               "key": "<IMAGE KEY 1>",
               "type": "image"
-            },
-            {
-              "src": "http://another.link.here.com",
-              "key": "<IMAGE KEY 2>",
-              "type": "<image/video/audio>"
             }
+
           ]
         },
         {
@@ -36,12 +32,12 @@
             {
               "src": "https://i.pinimg.com/564x/94/dd/57/94dd573e4b4de604ea7f33548da99fd6.jpg",
               "key": "<IMAGE KEY 1>",
-              "type": "<image/video/audio>"
+              "type": "image"
             },
             {
-              "src": "http://another.link.here.com",
+              "src": "https://i.pinimg.com/564x/94/dd/57/94dd573e4b4de604ea7f33548da99fd6.jpg",
               "key": "<IMAGE KEY 2>",
-              "type": "<image/video/audio>"
+              "type": "image"
             }
           ]
         }

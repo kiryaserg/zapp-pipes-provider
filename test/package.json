@@ -24,6 +24,21 @@
               "type": "image"
             }
           ]
+        },
+        {
+          "type": "IMAGE",
+          "media_item": [
+            {
+              "src": "https://i.pinimg.com/564x/94/dd/57/94dd573e4b4de604ea7f33548da99fd6.jpg",
+              "key": "<IMAGE KEY 3>",
+              "type": "image"
+            },
+            {
+              "src": "https://i.pinimg.com/564x/94/dd/57/94dd573e4b4de604ea7f33548da99fd6.jpg",
+              "key": "<IMAGE KEY 4>",
+              "type": "image"
+            }
+          ]
         }
       ],
       "content": {
@@ -37,6 +52,5 @@
         "href": "<DESCRIBED BELOW>"
       }
     }
-
   ]
 }

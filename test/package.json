@@ -6,7 +6,7 @@
   "entry": [
     {
       "type": {
-        "value": "article"
+        "value": "imageGallery"
       },
       "id": "1",
       "title": "<entryTITLE>",
@@ -24,22 +24,12 @@
               "type": "image"
             }
           ]
-        },
-        {
-          "type": "video",
-          "media_item": [
-            {
-              "src": "http://openmedia.yale.edu/projects/courses/spring11/econ252/embed/econ252_02_011411_emb.mp4",
-              "key": "<IMAGE KEY 1>",
-              "type": "video"
-            }
-          ]
         }
       ],
       "content": {
-        "type": "html",
-        "src": "https://oyc.yale.edu/economics/econ-252-11/lecture-2",
-        "content": "<div><h1>ECON 252: Financial Markets (2011)</h1> Professor Shiller introduces basic concepts from probability theory and embeds these concepts into the concrete context of financial crises, with examples from the financial crisis from 2007-2008. Subsequent to a historical narrative of the financial crisis from 2007-2008, he turns to the definition of the expected value and the variance of a random variable, as well as the covariance and the correlation of two random variables.  </div>"
+        "type": "<DESCRIBED BELOW>",
+        "src": "<DESCRIBED BELOW>",
+        "content": "<DESCRIBED BELOW>"
       },
       "link": {
         "type": "<DESCRIBED BELOW>",
@@ -49,7 +39,7 @@
     },
     {
       "type": {
-        "value": "article"
+        "value": "imageGallery"
       },
       "id": "2",
       "title": "<entryTITLE 2>",
@@ -85,9 +75,9 @@
         }
       ],
       "content": {
-        "type": "html",
-        "src": "https://oyc.yale.edu/economics/econ-252-11/lecture-2",
-        "content": "<div><h1>ECON 252: Financial Markets (2011)</h1> Professor Shiller introduces basic concepts from probability theory and embeds these concepts into the concrete context of financial crises, with examples from the financial crisis from 2007-2008. Subsequent to a historical narrative of the financial crisis from 2007-2008, he turns to the definition of the expected value and the variance of a random variable, as well as the covariance and the correlation of two random variables.  </div>"
+        "type": "<DESCRIBED BELOW>",
+        "src": "<DESCRIBED BELOW>",
+        "content": "<DESCRIBED BELOW>"
       },
       "link": {
         "type": "<DESCRIBED BELOW>",

@@ -36,54 +36,7 @@
         "rel": "<DESCRIBED BELOW>",
         "href": "<DESCRIBED BELOW>"
       }
-    },
-    {
-      "type": {
-        "value": "imageGallery"
-      },
-      "id": "2",
-      "title": "<entryTITLE 2>",
-      "summary": "<SUMMARY>",
-      "author": {
-        "name": "<AUTHOR NAME>"
-      },
-      "media_group": [
-        {
-          "type": "IMAGE",
-          "media_item": [
-            {
-              "src":  "https://i.pinimg.com/564x/94/dd/57/94dd573e4b4de604ea7f33548da99fd6.jpg",
-              "key": "<IMAGE KEY 1>",
-              "type": "image"
-            }
-          ]
-        },
-        {
-          "type": "IMAGE",
-          "media_item": [
-            {
-              "src": "https://i.pinimg.com/564x/94/dd/57/94dd573e4b4de604ea7f33548da99fd6.jpg",
-              "key": "<IMAGE KEY 3>",
-              "type": "image"
-            },
-            {
-              "src": "https://i.pinimg.com/564x/94/dd/57/94dd573e4b4de604ea7f33548da99fd6.jpg",
-              "key": "<IMAGE KEY 4>",
-              "type": "image"
-            }
-          ]
-        }
-      ],
-      "content": {
-        "type": "<DESCRIBED BELOW>",
-        "src": "<DESCRIBED BELOW>",
-        "content": "<DESCRIBED BELOW>"
-      },
-      "link": {
-        "type": "<DESCRIBED BELOW>",
-        "rel": "<DESCRIBED BELOW>",
-        "href": "<DESCRIBED BELOW>"
-      }
     }
+
   ]
 }
